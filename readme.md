@@ -394,10 +394,172 @@ Handles:
 
 ## ⌨️ Line by line explanation of MainActivity.java & MyCustomAdapter.java
 
+### MainActivity.java
 
+```java
+import android.content.Intent;
+```
+Imports the `Intent` class used to start new activities (screens) or pass data between components
+
+```java
+import android.os.Bundle;
+```
+A container for saving/ restoring activity state (e.g. screen rotation)
+
+```java
+import android.view.View;
+```
+Base class for all UI widgets (buttons, text views, etc). Used for the `onItemClick` parameter.
+
+```java
+import android.widget.AdapterView;
+```
+A view whose children are determined by an adapter (`GridView`, `ListView`)
+
+```java
+import android.widget.GridView;
+```
+A view that displays items in a two_dimensional scrollable grid.
+
+```java
+import androidx.activity.EdgeToEdge;
+```
+Helper to make the app draw edge-to-edge. No call in code.
+
+```java
+import androidx.appcompat.app.AppCompatActivity;
+```
+Base activity class that provides backward compatible features
+
+```java
+import java.util.ArrayList;
+```
+A resizeable array implementation used to store list of shapes.
+
+```java
+public class MainActivity extends AppCompactActivity {
+```
+Defines Main Activity class that inherits all the functionality of an android activity
+
+```java
+GridView gridView;
+```
+Hold reference to the grid view defined in the layout.
+
+```java
+ArrayList<Shape> shapeArrayList;
+```
+Store objects of a custom class `Shape`.
+
+```java
+MycustomAdapter adapter;
+```
+Extends `BaseAdapter` or `ArrayAdapter` that will bind the `shapeArrayList` to the `GridView`
+
+```java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+```
+Overrides the `onCreate` method - entry point when the activity is created. `Bundle` contains previously saved
+state if the activity is being restored.
+
+```java
+super.onCreate(savedInstanceState);
+```
+Calls the parent class's `onCreate` to perform the initial setup (creating decor view, saving instance state).
+
+```java
+setContentView(R.layout.activity_main);
+```
+Inflates the layout file `activity_main.xml` and becomes the visible content of the activity. All subsequent
+`findViewById` calls look for views inside this layout.
+
+```java
+gridView = findViewById(R.id.gridView);
+```
+Finds the `GridView` in the layout and stores it in the `gridView` variable.
+
+```java
+shapeArrayList = new ArrayList<>();
+```
+Creates an `ArrayList` of `Shape` objects.
+
+```java
+Shape s1 = new Shape(R.drawable.sphere, "Sphere");
+Shape s2 = new Shape(R.drawable.cylinder, "Cylinder");
+Shape s3 = new Shape(R.drawable.cube, "Cube");
+Shape s4 = new Shape(R.drawable.prism, "Prism");
+```
+Creates four Shape objects. The constructor likely takes an image resource ID 
+(e.g., R.drawable.sphere) and a string label.
+
+```java
+shapeArrayList.add(s1);
+shapeArrayList.add(s2);
+shapeArrayList.add(s3);
+shapeArrayList.add(s4);
+```
+Adds the four Shape objects to the `shapeArrayList`
+
+```java
+adapter = new MyCustomAdapter(shapeArrayList, getApplicationContext());
+```
+
+Instantiates the custom adapter, passing the list of shapes and the application context needed for 
+inflating item layouts and accessing resources.
+
+```java
+gridView.setAdapter(adapter);
+```
+Attaches adapter to the GridView. Will display items as defined by `MyCustomAdapter`
+
+```java
+gridView.setNumColumns(2);
+```
+Forces the grid to show two columns regardless of screen width.
+
+```java
+gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+```
+Registers a click listener for the grid items. When a shape is tapped, the `onItemClick` method is called.
+
+```java
+Intent i = new Intent(getApplicationContext(), Sphere.class);
+startActivity(i);
+Intent j = new Intent(getApplicationContext(), Cube.class);
+startActivity(j);
+Intent k = new Intent(getApplicationContext(), Cylinder.class);
+startActivity(k);
+Intent l = new Intent(getApplicationContext(), Prism.class);
+startActivity(l);
+```
+Creates four different intents for each shape and starts all of them in sequence with `Sphere` activity,
+then j with `Cube`, k with `Cylinder`, and l with `Prism`.
+
+Every time the user taps any grid item, the app will try to open all four calculation screens one after another
 
 ---
+## A word on what 'inflating' means
 
+Inflating in Android means converting an XML layout file into actual Java/Kotlin view objects
+that can be displayed on the screen.
+
+When you write a layout file (e.g., activity_main.xml), it’s just a text file describing what buttons, text,
+images, etc. you want, along with their sizes, positions, and attributes. But Android doesn’t understand XML
+directly at runtime – it needs real, live View objects (like Button, TextView, GridView, etc.) to draw on the screen.
+
+Inflation is the process where the Android system:
+
+- Reads the XML file. 
+- Parses every tag (like <Button>, <TextView>, <GridView>). 
+- Creates a corresponding Java object for each tag (e.g., new Button(...), new GridView(...)). 
+- Sets all the attributes you wrote (like android:text, android:layout_width) on those objects. 
+- Builds the parent-child relationships (e.g., a LinearLayout containing a Button). 
+- Returns the root View object (usually a ViewGroup like ConstraintLayout, LinearLayout, etc.).
+
+---
 ## 📚 Resources That Helped Me
 
 | Resource | Link | What I learned from it |
