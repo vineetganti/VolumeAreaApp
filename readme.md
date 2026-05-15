@@ -414,7 +414,7 @@ Base class for all UI widgets (buttons, text views, etc). Used for the `onItemCl
 ```java
 import android.widget.AdapterView;
 ```
-A view whose children are determined by an adapter (`GridView`, `ListView`)
+A view whose children are determined by an adapter (`GridView`, `ListView`).
 
 ```java
 import android.widget.GridView;
