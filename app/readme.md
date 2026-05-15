@@ -159,7 +159,28 @@ onCreate() → onStart() → onResume() → [App Running]
 
 **When do I use each callback?**
 
-- `onCreate()`: Used this callback in MainActivity.java 
+`onCreate()`: Used this callback in MainActivity.java to initialize the activity. 
+
+Once the MainActivity class is loaded by the system and memory is allocated, the `onCreate()(Bundle savedInstanceState)` 
+callback is invoked. The system passes any previously saved state (e.g., after a rotation) inside the `Bundle`.
+In this simple app, no state is saved, so `savedInstanceState` is null.
+
+`super.onCreate(savedInstanceState)` - ensures the parent class (`AppCompactActivity`) performs initial setup,
+susch as creating the internal decor view, initializing the theme, and restoring any framework-managed state.
+
+`setContentView(R.layout.activity_main)` - The layout file `activity_main.xml` is parsed (XML is inflated to 
+actual view objects) and becomes the visible content of the activity. 
+
+`findViewById(R.id.gridView)` - The inflated `GridView` is located and stored in the `gridView` variable.
+
+Create the data source - An `ArrayList<Shape>` is created and populated with four shapes, each containing 
+an image resource and a label.
+
+Create and set the adapter - Custom adapter is instantiated with the shape list and the application context.
+Adapter's job is to convert each `Shape` object into a `View` (typically an `ImageView` + `TextView` inside a grid cell).
+Tells the GridView to ask the adapter for the number of items and for each item's view.
+
+`gridView.setNumColumns(2)` - forces the grid to show two columns regardless of screen width.
 
 ---
 
@@ -167,21 +188,68 @@ onCreate() → onStart() → onResume() → [App Running]
 
 **What is an XML layout file?**
 
-[ Explain in your own words how XML describes the UI. ]
+Defines structure for User Interface and are built using a hierarchy of View and ViewGroup objects. 
+
+View usually draws something the user can see and interact with. 
+
+ViewGroup is an invisible container that defines the layout structure for View and other ViewGroup objects.
+
+View objects are often called widgets and can be one of many subclasses, such as Button or TextView.
+
+ViewGroup objects are called layouts and can be LinearLayout or ConstraintLayout
 
 **Layout types I used:**
 
-| Layout | When I used it | Why I chose it |
-|---|---|---|
-| `LinearLayout` | [ ... ] | [ ... ] |
-| `ConstraintLayout` | [ ... ] | [ ... ] |
-| [ others ] | [ ... ] | [ ... ] |
+| Layout | When I used it                                     | Why I chose it                                                                           |
+|---|----------------------------------------------------|------------------------------------------------------------------------------------------|
+| `ConstraintLayout` | To create a grid view of various shapes in the app | Helps create large, complex layouts with a <br/> flat hierarchy - no nested view groups. |
 
-**A layout snippet I'm proud of (paste it here):**
+**A layout snippet I'm proud of (ConstraintLayout for the grid):**
 
 ```xml
-<!-- Paste a layout snippet and explain what each attribute does -->
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="text1"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="@+id/imageView"
+        app:layout_constraintEnd_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 ```
+
+The entire layout is wrapped in a `ConstraintLayout` , which positions child views using constraints (relationships
+between views or the parent). It's set to `wrap_content` in both dimensions, meaning it shrinks to fit its children.
+
+ImageView
+
+A fixed 120x120dp image placeholder positioned at top-left corner of the layout and no `src` attribute is set here,
+so the image would be assigned programmatically.
+
+TextView
+
+Displays the placeholder text 'text1', horizontally centered under the ImageView by constraining both it's start
+and end to the ImageView's start and end. `constraintTop_toBottomOf` ensures text sits directly below the ImageView.
 
 ---
 
@@ -189,16 +257,26 @@ onCreate() → onStart() → onResume() → [App Running]
 
 **Common Views I used:**
 
-| View | What it does | Example in my app |
-|---|---|---|
-| `TextView` | Displays text | [ ... ] |
-| `ImageView` | Displays images | [ ... ] |
-| `RecyclerView` | Scrollable list | [ ... ] |
-| `Button` | Tappable button | [ ... ] |
+| View        | What it does                                 | Example in my app                                                                                               |
+|-------------|----------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `TextView`  | Displays text                                | Pretty much anywhere i wanted to display text on the screen                                                     |
+| `ImageView` | Displays images                              | Used to display images in the grid_item_layout.xml before replicating it in the activity_main.xml as a GridView |
+| `GridView`  | Arranges ImageViews in specified grid format | Usage in the activity_main.xml where multiple images view are arranged in a grid strictly with 2 columns        |
+| `Button`    | Tappable button                              | Used in individual xml files of respective shapes in order to calculate volume results                          |
 
 **How I connected XML to Java (findViewById or ViewBinding):**
 
-[ Explain the difference between `findViewById` and View Binding. Which did you use and why? ]
+
+| Feature             | findViewById               | View Binding                                                        |
+|---------------------|----------------------------|---------------------------------------------------------------------|
+| Null Safety         | ❌ Can return null          | ✅ Always non-null           |
+| Type Safety         | ❌ Manual casting            | ✅ Correct type auto-generated |
+| Compile-time checks | ❌ Errors at runtime | ✅ Errors caught at compile time |
+| Boilerplate         | ❌ One call per view           | ✅ One binding object |
+| Setup required      | ✅ None                           | ⚠️ Must enable in build.gradle                                                                    |
+| Performance         |  ⚠️ Slower (traverses view tree)   |  ✅ References generated at compile time                                                                   |
+
+
 
 ---
 
@@ -206,35 +284,61 @@ onCreate() → onStart() → onResume() → [App Running]
 
 **What is an Intent?**
 
-[ Explain what an Intent is. How did you use it to navigate between screens? ]
+A messaging object used to request an action from another component. Three main purposes are: Starting an activity,
+(navigating between screens), Starting a service (background task), and Broadcasting an action (system-wide event).
 
 **Explicit vs Implicit Intents:**
 
-[ Describe the difference in your own words with an example from your app. ]
-
-**Code I wrote:**
-
-```java
-// Paste an example of how you launched a new Activity
-```
+| Feature        | Explicit Intent                 | Implicit Intent                        |
+|----------------|---------------------------------|----------------------------------------|
+| Target         | Specific class named            | Action described                       |
+| Usecase        | Within app                      | Across apps                            |
+| Security       | More secure                     | Less controlled                        |
+| Example        | Open ProfileActivity            | Open URL in a browser                  |
 
 ---
 
 ### RecyclerView & Adapters
 
-**Why can't I just use a ListView?**
+**Difference between ListView and RecyclerView**
 
-[ What did you learn about the difference? ]
+| Feature            | ListView                                               | RecyclerView                                                                                  |
+|--------------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| ViewHolder Pattern | Recommended but not enforced                           | Mandatory - improves performance by reducing `findViewById` calls                             |
+| Layout Management  | Fixed vertical list only                               | Pluggable via `LayoutManager` - supports linear, grid, staggered grid, custom layouts         |
+| Item Animations    | Not built-in - requires custom code                    | Built-in support via `ItemAnimator` (add/ remove/ move/ chnage animations)                    |
+| Item Decoration    | Limited - can use dividers via XML `(android:divider)` | Dedicated `ItemDecoration` class for custom dividers, spacing, or overlays                    |
+| Adapter            | Extend `BaseAdapter` (or `ArrayAdapter`)               | Extend `RecyclerView.Adapter` - Enforces `ViewHolder` creation and binding                    |
+| Click Handling     | `onItemClickListener` provided                         | No default - must implement click listeners in the `ViewHolder` or via interface              |
+| Performance        | Good for simple lists, but recreates views more often  | Highly optimized - reuses views more aggresively, smoother scrolling for complex/ large lists |
+| Nested Scrolling   | Not officially supported (requires workarounds)        | Native support for nested scrolling (eg inside `NestedScrollView`)                            |
+| API Level          | Since API level 1                                      | Added in API level 14 (Android 4.0) via support library, now in AndroidX                      |
+| Flexibility        | Low - rigid list behavior                              | High - fully customizable via `LayoutManager`, `ItemAnimator`, `ItemDecoration`                |
+
 
 **How RecyclerView works (in my own words):**
 
-[ Explain ViewHolder pattern, the Adapter, and how they connect. This is a key concept! ]
+#### ViewHolder pattern, the Adapter, and how they connect. This is a key concept in RecyclerView.
 
-**My Adapter class:**
+##### ViewHolder
+ViewHolder pattern is a performance optimization technique used in Android AdapterView to reduce the number of expensive
+`findViewById()` calls while scrolling.
 
-```java
-// Paste a snippet of your Adapter or describe how you wrote it
-```
+A simple static inner class that holds references to the child views inside a list item layout. Instead of calling 
+`findViewById()` everytime, `getView()` (for `ListView`) or `onBindViewHolder()` (for `RecyclerView`) calls the ViewHolder.
+
+Attached to the item view via `setTag()` (in `ListView`) or `bind()` (in `RecyclerView`).
+
+##### Adapter
+Adapter acts as a bridge between a data source (E.g. `ArrayList`) and an `AdapterView` (like `ListView` or `RecyclerView`).
+It's responsible for creating, binding views to the data and managing the data set.
+
+In `RecyclerView`, the adapter is abstract and must implement:
+onCreateViewHolder() - Called when the RecyclerView needs a new ViewHolder of the given type to represent an item.
+
+onBindViewHolder() - Called by the RecyclerView to display the data at the specified position.
+
+getItemCount() - Returns the total number of items in the data set.
 
 ---
 
@@ -242,33 +346,22 @@ onCreate() → onStart() → onResume() → [App Running]
 
 **What is the Manifest?**
 
-[ Explain what this file registers and declares. ]
+The app's blueprint - tells the Android system everything it needs to know about the app before any code runs.
 
-**Things I declared in my Manifest:**
+What it registers and declares:
 
-- [ e.g., Activities I registered ]
-- [ e.g., Permissions I requested — why? ]
-- [ e.g., The launcher Activity ]
 
----
-
-## 🌐 Networking (if applicable)
-
-**Did the app fetch data from the internet?**
-
-[ Yes / No — if yes, describe what API or data source you used. ]
-
-**Library used:**
-
-[ e.g., Retrofit, Volley, OkHttp — what is it and how does it work? ]
-
-**How I handled JSON parsing:**
-
-[ Did you use Gson? JSONObject? Explain. ]
-
-**A thing that confused me about networking:**
-
-[ Threads? Callbacks? The main thread rule? Write it here. ]
+| Category                   | What it declares/ registers                                                                                                                       | Example                                                                                                                                    |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| App package & identity     | Package name, version code, version name                                                                                                          | `package="com.example.myapp"`                                                                                                              |
+| App components (core building blocks) | Activities - UI screens, Services - background tasks, Broadcast receivers - respond to system events, Content Providers - share the data between apps | `<activity android:name=".MainActivity"/>`, `<service android:name=".MyService"/>`                                                         |
+| Permissions                | Permissions the app requires (eg internet, camera, location)                                                                                      | `<uses-permission android:name="android.permission.INTERNET"/>`                                                                            |
+| Hardware and Software features | Features the app needs (camera, bluetooth, touchscreen)                                                                                           | `<uses-feature android:name="android.hardware.camera"/>`                                                                                   |
+| API level requirements     | Minimum SDK, target SDK version                                                                                                                   | `<uses-sdk android:minSdkVersion="21"/>`                                                                                                   |
+| Launchable Entry Point     | Which activity opens first (with `<intent-filter>`)                                                                                               | `<intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>` |
+| App metadata & configurations | Theme, icon, label (app name), hardware acceleration, screen orientation, etc.                                                                    | `android:icon="@mipmap/ic_launcher"`                                                                                                       |
+| Device compatibility          | Declares whether the app supports large screens, tablets, etc.                                                                                    | `android:resizeableActivity="true"`                                                                        |
+| App links & deep links        | URL associations for handling web links                                                                                                                                 | `<intent-filter> with VIEW action and data scheme`                                                                 |
 
 ---
 
@@ -276,55 +369,32 @@ onCreate() → onStart() → onResume() → [App Running]
 
 **What is Gradle?**
 
-[ In plain English, what does Gradle do? ]
+Gradle is a build automation tool. Takes raw ingredients - source code, images, libraries, and resources 
+and turn them into a finished app (like an Android APK) or program. 
 
-**build.gradle.kts (app level) — what I added:**
+Handles:
 
-```kotlin
-// Paste key dependencies you added and explain what they do
-dependencies {
-    // e.g., implementation("...") ← what does this library add?
-}
-```
+- Compiling code
+- Downloading and adding external libraries (dependencies)
+- Running tests
+- Packaging everything together
+- Optimizing and signing the final file
+
 
 **The difference between project-level and app-level Gradle:**
 
-[ Explain what each file controls. ]
+
+| File            | Location                                     | What it does                                                                      |
+|-----------------|----------------------------------------------|-----------------------------------------------------------------------------------|
+| `settings.gradle` (or `settings.gradle.kts`)| Project root                                 | Lists which modules (e.g., `:app`, `:library`) are included in the build. It defines the project’s structure.                                                    |
+| Project‑level `build.gradle` | Project root                                 | Contains global configuration that applies to all modules. |
+| App‑level build.gradle | Inside each module (e.g., `app/build.gradle`)  | Defines module‑specific settings.                   
 
 ---
 
-## 🐛 Bugs I Hit & How I Fixed Them
+## ⌨️ Line by line explanation of MainActivity.java & MyCustomAdapter.java
 
-> This is one of the most valuable sections. Document your debugging process.
 
-| Bug | What caused it | How I fixed it |
-|---|---|---|
-| [ e.g., App crashed on launch ] | [ NullPointerException in onCreate ] | [ Forgot to call setContentView() ] |
-| [ ... ] | [ ... ] | [ ... ] |
-
-**Most confusing error message I faced:**
-
-[ Paste the error and explain what it actually meant once you figured it out. ]
-
----
-
-## 💡 Key Takeaways & "Aha!" Moments
-
-[ This is your reflection section. Write down the moments where things clicked. ]
-
-1. [ e.g., "I finally understood that the UI thread is special — you can't do network calls on it." ]
-2. [ ... ]
-3. [ ... ]
-
----
-
-## 🔮 What I Want to Build Next
-
-[ What features do you want to add? What new concepts do you want to learn next? ]
-
-- [ e.g., Add a search feature ]
-- [ e.g., Learn about Room database ]
-- [ e.g., Add dark mode ]
 
 ---
 
@@ -334,7 +404,6 @@ dependencies {
 |---|---|---|
 | Android Docs | https://developer.android.com | [ ... ] |
 | [ Tutorial / Video ] | [ URL ] | [ ... ] |
-| [ StackOverflow post ] | [ URL ] | [ ... ] |
 
 ---
 
@@ -350,4 +419,4 @@ dependencies {
 
 ---
 
-*Last updated: [ date ] · Written by Vineet Ganti*
+*Last updated: May 15th 2026 · Written by Vineet Ganti*
