@@ -28,13 +28,13 @@ Hence, the attempt to eventually get there by building smaller apps in Java and 
 
 ## 🛠️ Tech Stack & Tools
 
-| Tool / Technology | Version | Why I used it                                                                                                                                                                                                                                                                                                      |
-|---|---|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Language | Java | Although Kotlin is the preferred choice for building Android apps because of it's readability, Null safety features by preventing common runtime crashes by catching null pointer exceptions at complile time, extension functions, lambda expressions and coroutines, I opted Java purely for the learning curve. |
-| IDE | Android Studio | [ Which version? Any setup gotchas? ]                                                                                                                                                                                                                                                                              |
-| Build System | Gradle (Kotlin DSL) | [ What is Gradle? What does build.gradle.kts do? ]                                                                                                                                                                                                                                                                 |
-| Min SDK | [ e.g. API 24 ] | [ What does Min SDK mean? Which Android versions does this cover? ]                                                                                                                                                                                                                                                |
-| Target SDK | [ e.g. API 34 ] | [ Why does Target SDK matter? ]                                                                                                                                                                                                                                                                                    |
+| Tool / Technology | Version             | Why I used it                                                                                                                                                                                                                                                                                                      |
+|---|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Language | Java                | Although Kotlin is the preferred choice for building Android apps because of it's readability, Null safety features by preventing common runtime crashes by catching null pointer exceptions at complile time, extension functions, lambda expressions and coroutines, I opted Java purely for the learning curve. |
+| IDE | Android Studio      | Android Studio Panda 3                                                                                                                                                                                                                                                                                             |
+| Build System | Gradle (Kotlin DSL) | Gradle is a build automation tool. Takes raw ingredients - source code, images, libraries, and resources and turn them into a finished app (like an Android APK) or program.                                                                                                                                       |
+| Min SDK | API 24              | Minimum Android version an app requires to run. This project covers from Android 7                                                                                                                                                                                                                                 |
+| Target SDK | API 36              | Controls how your app behaves when running on newer Android versions                                                                                                                                                                                                                                               |
 
 #### Note on coroutines in Kotlin: Coroutines provide a more straight forward way to write a synchronous,non-blocking code, making it easier to handle tasks like network requests and concurrent operations.
 #### It also avoids the need for writing boilerplate code especially for tasks like variable declaration, getters, setters and anonymous classes. Wait why am i using Java again?
@@ -115,13 +115,9 @@ rather than the app as an atomic whole. The activity serves as the entry point f
 
 **Activities in this project:**
 
-| Activity Name | What it does |
-|---|---|
-| `MainActivity.java` | [ Describe what this screen shows/does ] |
-
-**What I found confusing about Activities:**
-
-[ Be honest — what tripped you up? Did the back stack confuse you? The lifecycle? ]
+| Activity Name | What it does                                                                                       |
+|---|----------------------------------------------------------------------------------------------------|
+| `MainActivity.java` | Entry point, Sets up the UI, Handles user interactions, manages lifecycle, connects logic to views |
 
 ---
 
