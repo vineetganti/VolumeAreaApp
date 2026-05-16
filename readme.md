@@ -28,13 +28,13 @@ Hence, the attempt to eventually get there by building smaller apps in Java and 
 
 ## 🛠️ Tech Stack & Tools
 
-| Tool / Technology | Version | Why I used it                                                                                                                                                                                                                                                                                                      |
-|---|---|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Language | Java | Although Kotlin is the preferred choice for building Android apps because of it's readability, Null safety features by preventing common runtime crashes by catching null pointer exceptions at complile time, extension functions, lambda expressions and coroutines, I opted Java purely for the learning curve. |
-| IDE | Android Studio | [ Which version? Any setup gotchas? ]                                                                                                                                                                                                                                                                              |
-| Build System | Gradle (Kotlin DSL) | [ What is Gradle? What does build.gradle.kts do? ]                                                                                                                                                                                                                                                                 |
-| Min SDK | [ e.g. API 24 ] | [ What does Min SDK mean? Which Android versions does this cover? ]                                                                                                                                                                                                                                                |
-| Target SDK | [ e.g. API 34 ] | [ Why does Target SDK matter? ]                                                                                                                                                                                                                                                                                    |
+| Tool / Technology | Version             | Why I used it                                                                                                                                                                                                                                                                                                      |
+|---|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Language | Java                | Although Kotlin is the preferred choice for building Android apps because of it's readability, Null safety features by preventing common runtime crashes by catching null pointer exceptions at complile time, extension functions, lambda expressions and coroutines, I opted Java purely for the learning curve. |
+| IDE | Android Studio      | Android Studio Panda 3                                                                                                                                                                                                                                                                                             |
+| Build System | Gradle (Kotlin DSL) | Gradle is a build automation tool. Takes raw ingredients - source code, images, libraries, and resources and turn them into a finished app (like an Android APK) or program.                                                                                                                                       |
+| Min SDK | API 24              | Minimum Android version an app requires to run. This project covers from Android 7                                                                                                                                                                                                                                 |
+| Target SDK | API 36              | Controls how your app behaves when running on newer Android versions                                                                                                                                                                                                                                               |
 
 #### Note on coroutines in Kotlin: Coroutines provide a more straight forward way to write a synchronous,non-blocking code, making it easier to handle tasks like network requests and concurrent operations.
 #### It also avoids the need for writing boilerplate code especially for tasks like variable declaration, getters, setters and anonymous classes. Wait why am i using Java again?
@@ -115,13 +115,9 @@ rather than the app as an atomic whole. The activity serves as the entry point f
 
 **Activities in this project:**
 
-| Activity Name | What it does |
-|---|---|
-| `MainActivity.java` | [ Describe what this screen shows/does ] |
-
-**What I found confusing about Activities:**
-
-[ Be honest — what tripped you up? Did the back stack confuse you? The lifecycle? ]
+| Activity Name | What it does                                                                                       |
+|---|----------------------------------------------------------------------------------------------------|
+| `MainActivity.java` | Entry point, Sets up the UI, Handles user interactions, manages lifecycle, connects logic to views |
 
 ---
 
@@ -541,6 +537,194 @@ then j with `Cube`, k with `Cylinder`, and l with `Prism`.
 Every time the user taps any grid item, the app will try to open all four calculation screens one after another
 
 ---
+### MyCustomAdapter.java
+
+```java
+import android.content.Context;
+```
+Imports `Context`, which gives access to application-specific resources and classes. Used here to access
+`LayoutInflater`
+
+```java
+import android.view.LayoutInflater;
+```
+Imports `LayoutInflater` - inflates XML layout files into `View` objects.
+
+```java
+import android.view.View;
+import android.view.ViewGroup;
+```
+`View` - base class for all UI widgets (buttons, text views, etc.)
+`ViewGroup` - base class for layouts that contain other views
+
+```java
+import android.widget.ArrayAdapter;
+```
+A concrete adapter that manages a list of objects and provides `View`s for each of the objects.
+
+```java
+import android.widget.ImageView;
+import android.widget.TextView;
+```
+`ImageView` - displays images
+`TextView` - displays text
+
+```java
+import androidx.annotation.NonNull;
+```
+Imports a support library annotation that indicates a parameter or return value must never be `null`. 
+Used here to mark the `parent` parameter.
+
+```java
+public class MyCustomAdapter extends ArrayAdapter<Shape> {
+```
+Declares a custom adapter that extends `ArrayAdapter` and is tied to a list of `Shape` objects.
+
+```java
+private ArrayList<Shape> shapesArrayList;
+Context context;
+```
+`shapesArrayList` - stores the list of shapes to display
+`context` - stores the application context needed for inflating item layouts
+
+```java
+public MyCustomAdapter(ArrayList<Shape> shapesArrayList, Context context) {
+    super(context, R.layout.grid_item_layout, shapesArrayList);
+    this.shapesArrayList = shapesArrayList;
+    this.context = context;
+}
+```
+Constructor:
+ 
+- `super(...)` calls the parent `ArrayAdapter` constructor, passing the context, the layout resource ID for 
+each item (`R.layout.grid_item_layout`), and the list of shapes to display.
+- Then stores the local references to the list of shapes and the application context.
+
+```java
+private static class MyViewHolder {
+    ImageView shapeImg;
+    TextView shapeName;
+}
+```
+
+- A static inner class that holds references to the views inside one grid item. Using a `viewHolder` improves
+performance by avoiding repeated calls to `findViewById()`
+- Static means it does not hold an implicit reference to the outer `MyCustomAdapter` instance, preventing memory leaks.
+
+```java
+public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+```
+Overrides getView(), which is called for every item in the grid to create or recycle a view for that position
+
+- position: index of the current item in the data list
+- convertView: an old view that can be reused (recycled) if not null
+- parent: the parent `ViewGroup` (the `GridView`) that this view will eventually be attached to.
+
+```java
+Shape shapes = getItem(position);
+```
+`getItem(position)` is a method from `ArrayAdapter` that returns the `Shape` object at the specified position.
+
+```java
+MyViewHolder myViewHolder;
+```
+Creates a `MyViewHolder` object.
+
+```java
+if (convertView == null) {
+    myViewHolder = new MyViewHolder();
+    LayoutInflater inflater = LayoutInflater.from(getContext());
+```
+If found that the recycled view is null, a new view will be created, `ViewHolder` instance to hold references 
+for this new view.
+
+Gets a `LayoutInflater` from the adapter's context. `getContext()` comes from the parent `ArrayAdapter`.
+
+```java
+convertView = inflater.inflate(R.layout.grid_item_layout, parent, false);
+```
+Inflates the layout file `grid_item_layout.xml` into the `convertView` object.
+
+`false` means the inflated view will not be immediately attached to `parent` (the grid will do that later).
+
+```java
+myViewHolder.shapeName = (TextView) convertView.findViewById(R.id.textView);
+myViewHolder.shapeImg = (ImageView) convertView.findViewById(R.id.imageView);
+```
+Finds the `TextView` and `ImageView` inside the `convertView` and stores them in the `myViewHolder` object.
+
+```java
+converterView.setTag(myViewHolder);
+```
+Attaches the `myViewHolder` object to the view using `setTag()`. This allows to retrieve the `ViewHolder` later
+when the view is recycled.
+
+```java
+} else {
+    myViewHolder = (MyViewHolder) convertView.getTag();
+```
+If `converterView` is not null, recycle an old view. Retrieve its `ViewHolder` using `getTag()`.
+Directly access the child views without caling `findViewById()` again.
+
+After this, `myViewHolder` always points to a valid `ViewHolder` for `convertView`.
+
+```java
+myViewHolder.shapeName.setText(shapes.getShapeName());
+myViewHolder.shapeImg.setImageResource(shapes.getShapeImg());
+```
+Populate the recycled or new view with the current shape's name and image resource ID.
+`getShapeName()` and `getShapeImg()` are methods defined in the `Shape` class.
+
+```java
+return converterView;
+```
+Returns the view to be displayed in the `GridView` at the specified position.
+
+---
+
+#### How getView works in this adapter
+
+`getView` is the heart of any adapter. It is called repeatedly by the GridView (or ListView) to draw
+each visible item on the screen. Here’s exactly what happens when the app runs:
+
+1. Initial display 
+- The GridView asks the adapter: “How many items do you have?” – answered by `getCount()` 
+(inherited from ArrayAdapter). 
+- Then it starts asking for views using `getView(position, convertView, parent)`.
+
+2. Creating new views 
+- For positions that appear on screen initially, `convertView` is null because no recyclable views exist yet. 
+- The adapter inflates the layout `grid_item_layout.xml` → this creates a brand new `View` object. 
+- A `ViewHolder` is created, finds the child views (`TextView`, `ImageView`) inside that layout, and stores them. 
+- The `ViewHolder` is attached to the view via `setTag()`. 
+- The view is filled with data for that position and returned.
+
+3. Recycling (performance key)
+- When the user scrolls, items that go off‑screen are not discarded – they become recyclable. 
+- When a new item scrolls onto the screen, the `GridView` passes one of those off‑screen views as 
+`convertView` (not `null`). 
+- Instead of inflating again (expensive), the adapter simply retags the existing `ViewHolder` using `getTag()`. 
+- It then updates only the text and image (cheap operations) and returns the recycled view. 
+- This avoids repeated XML inflation and `findViewById` calls, making scrolling smooth.
+
+4. ViewHolder pattern advantage 
+- Without `ViewHolder`, every call to `getView` (even recycling) would require `findViewById` to get
+references to `TextView` and `ImageView`. 
+- With `ViewHolder`, those references are stored once and reused, greatly improving performance.
+
+5. Why `parent` and `false` in inflate? 
+- `parent` provides the correct layout parameters (like layout_width, layout_height) that are defined in the XML. 
+- `false` tells the inflater not to attach the view to parent immediately – the GridView will attach it at the
+right time. If we passed `true`, the view would be attached twice, causing an error.
+
+6. Relation to your MainActivity 
+- The `MyCustomAdapter` is used in `MainActivity` to bind the `shapeArrayList` to the `GridView`. 
+- When the user taps a shape, the click listener (in `MainActivity`) should use the position parameter
+to start the correct volume‑calculation activity. 
+- The adapter itself does not handle clicks; it only provides the visual representation.
+
+---
+
 ## A word on what 'inflating' means
 
 Inflating in Android means converting an XML layout file into actual Java/Kotlin view objects
